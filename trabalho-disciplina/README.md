@@ -106,7 +106,7 @@ Relacionamentos:
 
 O diagrama abaixo representa a arquitetura em camadas do sistema:
 
-[![Diagrama de Arquitetura](images/arquitetura.png)](https://lucid.app/lucidspark/617099a9-93be-4423-a33d-23178b70531f/edit?invitationId=inv_dbbd9274-23c0-42ef-861e-a9aef0048ab1&page=0_0#)
+[![Diagrama de Arquitetura](images/arquitetura.png)](https://lucid.app/lucidspark/617099a9-93be-4423-a33d-23178b70531f/edit?viewport_loc=-4017%2C-1751%2C3461%2C1996%2C0_0&invitationId=inv_dbbd9274-23c0-42ef-861e-a9aef0048ab1)
 
 
 
