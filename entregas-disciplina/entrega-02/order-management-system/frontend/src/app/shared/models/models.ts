@@ -1,0 +1,44 @@
+export enum OrderStatus {
+    OPEN = 'OPEN',
+    CONFIRMED = 'CONFIRMED',
+    SHIPPED = 'SHIPPED',
+    DELIVERED = 'DELIVERED',
+    CANCELED = 'CANCELED'
+}
+
+export interface Product {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+}
+
+export interface OrderItem {
+    productId: number;
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+    subTotal: number;
+}
+
+export interface Order {
+    id: number;
+    userEmail: string;
+    createdAt: string;
+    status: OrderStatus;
+    total: number;
+    items: OrderItem[];
+}
+
+export interface User {
+    email: string;
+    roles: string[];
+    token: string;
+}
+
+export interface LoginResponse {
+    accessToken: string;
+    tokenType: string;
+    email: string;
+    roles: string[];
+}

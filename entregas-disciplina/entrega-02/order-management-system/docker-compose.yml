@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  backend:
+    image: ai-dev-backend
+    container_name: order-system-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/orderdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - APP_JWT_SECRET=9a4f2c8d3b7a1e6f45c8a0b3c2d1e9f8g7h6i5j4k3l2m1n0o9p8q7r6s5t4u3v2
+    depends_on:
+      - db
+    networks:
+      - order-network
+
+  frontend:
+    image: ai-dev-frontend
+    container_name: order-system-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - order-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: order-system-db
+    environment:
+      - POSTGRES_DB=orderdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - order-network
+
+networks:
+  order-network:
+    driver: bridge
+
+volumes:
+  db_data:
