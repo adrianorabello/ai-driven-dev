@@ -1,8 +1,7 @@
 
+## Integrantes do Grupo
 
-## Group Members (Integrantes do Grupo)
-
-| Name | RM |
+| Nome | RM |
 | :--- | :--- |
 | Adriano Rabello | RM362208 |
 | Fabio Ivo Silva | RM364993 |
@@ -11,34 +10,34 @@
 | Renato Magri | RM365124 |
 
 
-# Order Management System
+# Sistema de Gerenciamento de Pedidos (Order Management System)
 
-## Overview
-This is a complete project (Backend + Frontend) of an Order Management System, developed as educational material for Software Engineering classes. The project demonstrates the application of best practices, design patterns, layered architecture, and security.
+## Visão Geral
+Este é um projeto completo (Backend + Frontend) de um Sistema de Gerenciamento de Pedidos, desenvolvido como material educacional para aulas de Engenharia de Software. O projeto demonstra a aplicação de boas práticas, padrões de design, arquitetura em camadas e segurança.
 
-## Technologies Used
+## Tecnologias Utilizadas
 
 ### Backend
-*   **Language:** Java 21
+*   **Linguagem:** Java 21
 *   **Framework:** Spring Boot 3.3.x
-*   **Security:** Spring Security + JWT
-*   **Database:** H2 (Memory - Default) / PostgreSQL (Docker - Production)
+*   **Segurança:** Spring Security + JWT
+*   **Banco de Dados:** H2 (Memória - Padrão) / PostgreSQL (Docker - Produção)
 *   **ORM:** JPA / Hibernate
-*   **Documentation:** Swagger / OpenAPI
+*   **Documentação:** Swagger / OpenAPI
 *   **Build:** Maven
-*   **Containerization:** Docker
+*   **Containerização:** Docker
 
 ### Frontend
-*   **Framework:** Angular 18+ (Standalone Components)
-*   **Styling:** CSS / SCSS
-*   **Communication:** HTTP Client
+*   **Framework:** Angular 18+ (Componentes Standalone)
+*   **Estilização:** CSS / SCSS
+*   **Comunicação:** HTTP Client
 
-## Project Structure
+## Estrutura do Projeto
 
 ```
 order-management-system/
-├── backend/            # Backend Source Code (Spring Boot)
-│   ├── src/main/java   # Java Code
+├── backend/            # Código Fonte do Backend (Spring Boot)
+│   ├── src/main/java   # Código Java
 │   │   └── com.edu.ordersystem
 │   │       ├── config
 │   │       ├── controller
@@ -48,26 +47,26 @@ order-management-system/
 │   │       ├── repository
 │   │       ├── security
 │   │       └── service
-│   └── src/main/resources # Configuration and SQLs
-├── frontend/           # Frontend Source Code (Angular)
+│   └── src/main/resources # Configuração e SQLs
+├── frontend/           # Código Fonte do Frontend (Angular)
 │   ├── src/app
-│   │   ├── core        # Services, Guards, Interceptors (Singleton)
-│   │   ├── modules     # Feature Modules (Lazy Loaded)
-│   │   └── shared      # Shared Components and Models
-├── docs/               # Technical and Architectural Documentation
-└── docker-compose.yml  # Container Orchestration
+│   │   ├── core        # Serviços, Guards, Interceptores (Singleton)
+│   │   ├── modules     # Módulos de Funcionalidade (Carregamento Preguiçoso)
+│   │   └── shared      # Componentes e Modelos Compartilhados
+├── docs/               # Documentação Técnica e Arquitetural
+└── docker-compose.yml  # Orquestração de Containers
 ```
 
-## How to Run
+## Como Executar
 
-### Prerequisites
+### Pré-requisitos
 *   Java 21 JDK
 *   Maven 3.8+
 *   Node.js 20+
-*   Docker & Docker Compose (Optional to run everything together)
+*   Docker & Docker Compose (Opcional para rodar tudo junto)
 
-### Run All Projects (Docker Compose)
-At the project root (`order-management-system/`), execute:
+### Executar Todos os Projetos (Docker Compose - Recomendado)
+Na raiz do projeto (`order-management-system/`), execute:
 ```bash
 docker-compose up --build
 ```
@@ -75,8 +74,8 @@ docker-compose up --build
 *   **Frontend:** http://localhost:4200
 *   **Swagger UI:** http://localhost:8080/swagger-ui.html
 
-### Local Execution (Development)
-You need to run the Backend and Frontend in separate terminals.
+### Execução Local (Desenvolvimento)
+Você precisa rodar o Backend e o Frontend em terminais separados.
 
 #### Terminal 1: Backend
 ```bash
@@ -90,18 +89,18 @@ cd frontend
 npm install
 npm start
 ```
-*   The application will be available at http://localhost:4200.
+*   A aplicação estará disponível em http://localhost:4200.
 
-### Hybrid Execution (Local Backend + Docker DB)
-This mode is useful if you want to run the database via Docker but keep the backend running locally for debugging.
+### Execução Híbrida (Backend Local + Banco Docker)
+Este modo é útil se você quiser rodar o banco de dados via Docker mas manter o backend rodando localmente para debug.
 
-1.  **Start only the Database:**
+1.  **Inicie apenas o Banco de Dados:**
     ```bash
     docker-compose up -d db
     ```
 
-2.  **Run Backend (Spring Boot):**
-    You need to override the default H2 configuration to connect to PostgreSQL.
+2.  **Rode o Backend (Spring Boot):**
+    Você precisa sobrescrever a configuração padrão do H2 para conectar ao PostgreSQL.
     ```bash
     cd backend
     export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/orderdb
@@ -110,87 +109,86 @@ This mode is useful if you want to run the database via Docker but keep the back
     export SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
     mvn spring-boot:run
     ```
-    *Note: On Windows PowerShell, use `$env:VAR="value"` instead of `export`.*
+    *Nota: No Windows PowerShell, use `$env:VAR="valor"` em vez de `export`.*
 
-3.  **Run Frontend:**
-    Follow the instructions in the "Local Execution" section above.
+3.  **Rode o Frontend:**
+    Siga as instruções na seção "Execução Local" acima.
 
-## Verification
+## Verificação
 
-To verify that the system is working correctly, you can use the provided shell scripts. These scripts use `curl` to interact with the API.
+Para verificar se o sistema está funcionando corretamente, você pode usar os scripts shell fornecidos. Esses scripts usam `curl` para interagir com a API.
 
-### Prerequisites for Verification
-*   The Backend must be running (either via Docker or locally).
-*   `curl` must be installed.
+### Pré-requisitos para Verificação
+*   O Backend deve estar rodando (seja via Docker ou localmente).
+*   `curl` deve estar instalado.
 
-### Verify Orders
-This script performs a full cycle of order operations: Login (User/Admin), Create, Read, Update, and Delete orders.
+### Verificar Pedidos (Verify Orders)
+Este script realiza um ciclo completo de operações de pedidos: Login (Usuário/Admin), Criar, Ler, Atualizar e Deletar pedidos.
 
 ```bash
 chmod +x verify_orders.sh
 ./verify_orders.sh
 ```
 
-### Verify Products
-This script authenticates a user and retrieves the list of products.
+### Verificar Produtos (Verify Products)
+Este script autentica um usuário e recupera a lista de produtos.
 
 ```bash
 chmod +x verify_products.sh
 ./verify_products.sh
 ```
 
-## Default Users (Seed Data)
-The system starts with the following users for testing:
+## Usuários Padrão (Dados Iniciais)
+O sistema inicia com os seguintes usuários para teste:
 
-| Profile | User | Password |
+| Perfil | Usuário | Senha |
 | :--- | :---   | :---                  |
 | **ADMIN**     | `admin@example.com`   | `admin123` |
 | **USER**      | `user@example.com`    | `user123`  |
 | **VIEWER**    | `viewer@example.com`  | `viewer123`|
 
-## Authentication
+## Autenticação
 
-To access protected endpoints, you need to obtain a JWT token.
+Para acessar endpoints protegidos, você precisa obter um token JWT.
 
-1.  Make a **POST** request to `/api/auth/login` (check Swagger UI).
-2.  In the request body, send the credentials (email and password) of one of the users above.
-3.  The response will contain an `accessToken`.
-4.  In subsequent requests, add the `Authorization` header with the value `Bearer <accessToken>`.
+1.  Faça uma requisição **POST** para `/api/auth/login` (verifique o Swagger UI).
+2.  No corpo da requisição, envie as credenciais (email e senha) de um dos usuários acima.
+3.  A resposta conterá um `accessToken`.
+4.  Nas requisições subsequentes, adicione o cabeçalho `Authorization` com o valor `Bearer <accessToken>`.
 
 
 
-## Development Prompts Summary
+## Prompt para Gerar este Projeto
 
-Here is a refined summary of the prompts and instructions used to build this project:
+Abaixo está o prompt consolidado que pode ser utilizado para gerar um projeto similar a este utilizando ferramentas de IA Generativa:
 
-### 1. Project Initialization
-- "Create a complete Order Management System using **Java Spring Boot** (Backend) and **Angular** (Frontend)."
-- "Implement a layered architecture: Controller, Service, Repository, DTOs, and Domain Models."
-- "Configure **Docker** and **Docker Compose** to orchestrate Backend, Frontend, and PostgreSQL database containers."
+> "Crie um **Sistema de Gerenciamento de Pedidos** completo (Full Stack) com as seguintes especificações:
+>
+> **1. Backend (Java Spring Boot):**
+> *   Utilize **Java 21** e **Spring Boot 3.3.x**.
+> *   Implemente segurança com **Spring Security** e **JWT** (Autenticação Stateless).
+> *   Configure acesso baseado em papéis (RBAC): **ADMIN** (acesso total) e **USER** (apenas seus próprios dados).
+> *   Use banco de dados **H2** para desenvolvimento (em memória) e suporte a **PostgreSQL** para produção via Docker.
+> *   Arquitetura em camadas: Controller, Service, Repository, DTO, Model.
+> *   Documentação da API com **Swagger/OpenAPI**.
+> *   Endpoints CRUD para `Produtos` e `Pedidos`.
+> *   Regra de negócio: Pedidos só podem ser editados ou excluídos se o status for 'OPEN'.
+>
+> **2. Frontend (Angular):**
+> *   Utilize **Angular 18+** com **Standalone Components**.
+> *   Estilize com **Bootstrap 5** e **SCSS**.
+> *   Crie um Dashboard com gráficos (**Chart.js**) mostrando estatísticas de pedidos.
+> *   Implemente listagem de pedidos com badges de status e ações (Editar, Excluir, Visualizar).
+> *   Formulário reativo para criação de pedidos com múltiplos itens dinâmicos.
+> *   Interceptores HTTP para anexar o Token JWT automaticamente.
+>
+> **3. Infraestrutura & Scripts:**
+> *   Crie um `docker-compose.yml` para orquestrar Backend, Frontend (Nginx/Imagem Node) e Banco de Dados PostgreSQL.
+> *   Inclua scripts Shell (`verify_orders.sh`) para testar o fluxo completo da API via `curl`.
+>
+> O código deve ser limpo, seguir os princípios SOLID e incluir tratamento de exceções global."
 
-### 2. Security & Authentication
-- "Implement **JWT Authentication** with Spring Security."
-- "Define Role-Based Access Control (RBAC) with `ADMIN` and `USER` roles."
-- "Secure API endpoints to ensure Users can only manage their own orders, while Admins have full access."
-
-### 3. Core Functionality (Backend)
-- "Create CRUD endpoints for `Products` and `Orders`."
-- "Implement business rules: Orders can only be edited/deleted if status is `OPEN`."
-- "Add a verification script (`verify_orders.sh`) to test API endpoints using `curl`."
-
-### 4. Frontend UI/UX
-- "Develop a responsive UI using **Bootstrap 5** and custom SCSS."
-- "Create a Dashboard with **Chart.js** to visualize order statistics (e.g., Orders by Status)."
-- "Implement an Order List with status badges and action buttons (Edit, Delete, View)."
-- "Build a reactive Order Form (`OrderCreateComponent`) with dynamic line items."
-
-### 5. Debugging & Polish
-- "Fix 404 errors on `GET /orders/{id}` by implementing the missing backend endpoint."
-- "Resolve CORS issues to allow Frontend communication with Backend."
-- "Improve the verification script to cover edge cases and ensure robustness."
-- "Refine the project structure and documentation for educational purposes."
-
-## Additional Documentation
-*   [Architecture and Technical Decisions](docs/ARCHITECTURE.md)
-*   [Business Rules](docs/BUSINESS_RULES.md)
-*   [Security](docs/SECURITY.md)
+## Documentação Adicional
+*   [Arquitetura e Decisões Técnicas](docs/ARCHITECTURE.md)
+*   [Regras de Negócio](docs/BUSINESS_RULES.md)
+*   [Segurança](docs/SECURITY.md)
