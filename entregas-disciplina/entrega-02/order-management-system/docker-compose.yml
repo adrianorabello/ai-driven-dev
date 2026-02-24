@@ -2,6 +2,9 @@ version: '3.8'
 
 services:
   backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     image: ai-dev-backend
     container_name: order-system-backend
     ports:
@@ -19,6 +22,9 @@ services:
       - order-network
 
   frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     image: ai-dev-frontend
     container_name: order-system-frontend
     ports:
@@ -42,9 +48,23 @@ services:
     networks:
       - order-network
 
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: always
+    ports:
+      - "9443:9443"
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - order-network
+
 networks:
   order-network:
     driver: bridge
 
 volumes:
   db_data:
+  portainer_data:
