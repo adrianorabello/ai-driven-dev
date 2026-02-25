@@ -180,7 +180,7 @@ Abaixo está o prompt consolidado que pode ser utilizado para gerar um projeto s
 > *   Crie um Dashboard com gráficos (**Chart.js**) mostrando estatísticas de pedidos.
 > *   Implemente listagem de pedidos com badges de status e ações (Editar, Excluir, Visualizar).
 > *   Formulário reativo para criação de pedidos com múltiplos itens dinâmicos.
-> *   Interceptores HTTP para anexar o Token JWT automaticamente.
+> *   Interceptores HTTP para anexar o Token JWT automaticamente. 
 >
 > **3. Infraestrutura & Scripts:**
 > *   Crie um `docker-compose.yml` para orquestrar Backend, Frontend (Nginx/Imagem Node) e Banco de Dados PostgreSQL.
