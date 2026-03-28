@@ -193,3 +193,4 @@ Abaixo está o prompt consolidado que pode ser utilizado para gerar um projeto s
 *   [Arquitetura e Decisões Técnicas](docs/ARCHITECTURE.md)
 *   [Regras de Negócio](docs/BUSINESS_RULES.md)
 *   [Segurança](docs/SECURITY.md)
+*   [Vídeo Apresentação](https://youtu.be/07mB52i69_w)
