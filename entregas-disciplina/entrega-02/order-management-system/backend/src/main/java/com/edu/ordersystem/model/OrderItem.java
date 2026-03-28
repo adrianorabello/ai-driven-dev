@@ -32,4 +32,11 @@ public class OrderItem {
 
     @Column(nullable = false)
     private BigDecimal price; // Price at the moment of purchase
+
+    public BigDecimal calculateSubTotal() {
+        if (price != null && quantity != null) {
+            return price.multiply(BigDecimal.valueOf(quantity));
+        }
+        return BigDecimal.ZERO;
+    }
 }

@@ -46,4 +46,14 @@ public class Order {
             this.status = OrderStatus.OPEN;
         }
     }
+
+    public void calculateTotal() {
+        if (items != null) {
+            this.total = items.stream()
+                    .map(OrderItem::calculateSubTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        } else {
+            this.total = BigDecimal.ZERO;
+        }
+    }
 }

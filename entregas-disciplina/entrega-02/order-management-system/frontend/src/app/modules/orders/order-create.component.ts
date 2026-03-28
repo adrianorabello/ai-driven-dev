@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrderService } from '../../core/services/order.service';
-import { Product } from '../../shared/models/models';
+import { Product, Order } from '../../shared/models/models';
+import { OrderFormService } from './order-form.service';
 
 @Component({
   selector: 'app-order-create',
@@ -73,93 +75,69 @@ export class OrderCreateComponent implements OnInit {
   loading = false;
   isEditMode = false;
   orderId: number | null = null;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
-    private fb: FormBuilder,
+    private orderFormService: OrderFormService,
     private orderService: OrderService,
     private router: Router,
     private route: ActivatedRoute
   ) {
-    this.orderForm = this.fb.group({
-      items: this.fb.array([])
-    });
+    this.orderForm = this.orderFormService.createOrderForm();
   }
 
   ngOnInit(): void {
-    console.log('OrderCreateComponent initialized');
-    this.orderService.getProducts().subscribe({
-      next: (products) => {
-        console.log('Products loaded:', products);
-        this.products = products;
-
-        this.route.params.subscribe(params => {
-          console.log('Route params:', params);
-          if (params['id']) {
-            this.isEditMode = true;
-            this.orderId = +params['id'];
-            console.log('Edit mode detected, loading order:', this.orderId);
-            this.loadOrder(this.orderId);
-          } else {
-            console.log('Create mode detected');
-            this.addItem();
-          }
-        });
-      },
-      error: (err) => console.error('Error loading products:', err)
-    });
+    this.orderService.getProducts()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (products) => {
+          this.products = products;
+          this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+            if (params['id']) {
+              this.isEditMode = true;
+              this.orderId = +params['id'];
+              this.loadOrder(this.orderId);
+            } else {
+              this.addItem();
+            }
+          });
+        },
+        error: (err) => console.error('Error loading products:', err)
+      });
   }
 
   loadOrder(id: number) {
-    console.log('Loading order details for ID:', id);
     this.loading = true;
-    this.orderService.getOrder(id).subscribe({
-      next: (order) => {
-        console.log('Order loaded:', order);
-        this.loading = false;
-        // Clear initial empty item if any
-        while (this.items.length) {
-          this.items.removeAt(0);
+    this.orderService.getOrder(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (order: Order) => {
+          this.loading = false;
+          const itemsToLoad = order.items.map((item: any) => ({
+            productId: item.productId || (item as any).product?.id,
+            quantity: item.quantity
+          }));
+          this.orderFormService.loadOrderItems(this.orderForm, itemsToLoad);
+        },
+        error: (err) => {
+          console.error('Failed to load order:', err);
+          this.loading = false;
+          alert('Failed to load order');
+          this.router.navigate(['/orders']);
         }
-
-        if (order.items && order.items.length > 0) {
-          order.items.forEach(item => {
-            console.log('Processing item for form:', item);
-            // Handle both structure possibilities (productId check)
-            const pId = item.productId || (item as any).product?.id;
-
-            const itemForm = this.fb.group({
-              productId: [pId, Validators.required],
-              quantity: [item.quantity, [Validators.required, Validators.min(1)]]
-            });
-            this.items.push(itemForm);
-          });
-        } else {
-          this.addItem();
-        }
-      },
-      error: (err) => {
-        console.error('Failed to load order:', err);
-        this.loading = false;
-        alert('Failed to load order');
-        this.router.navigate(['/orders']);
-      }
-    });
+      });
   }
 
   get items() {
-    return this.orderForm.get('items') as FormArray;
+    return this.orderFormService.itemsArray(this.orderForm);
   }
 
   addItem() {
-    const itemForm = this.fb.group({
-      productId: [null, Validators.required],
-      quantity: [1, [Validators.required, Validators.min(1)]]
-    });
-    this.items.push(itemForm);
+    this.orderFormService.addItem(this.orderForm);
   }
 
   removeItem(index: number) {
-    this.items.removeAt(index);
+    this.orderFormService.removeItem(this.orderForm, index);
   }
 
   cancel() {
@@ -170,28 +148,28 @@ export class OrderCreateComponent implements OnInit {
     if (this.orderForm.invalid) return;
 
     this.loading = true;
-    const items = this.orderForm.value.items;
+    const payload = this.orderFormService.getPayload(this.orderForm);
 
     if (this.isEditMode && this.orderId) {
-      this.orderService.updateOrder(this.orderId, items).subscribe({
-        next: () => {
-          this.router.navigate(['/orders']);
-        },
-        error: () => {
-          this.loading = false;
-          alert('Error updating order');
-        }
-      });
+      this.orderService.updateOrder(this.orderId, payload)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => this.router.navigate(['/orders']),
+          error: () => {
+            this.loading = false;
+            alert('Error updating order');
+          }
+        });
     } else {
-      this.orderService.createOrder(items).subscribe({
-        next: () => {
-          this.router.navigate(['/orders']);
-        },
-        error: () => {
-          this.loading = false;
-          alert('Error creating order');
-        }
-      });
+      this.orderService.createOrder(payload)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => this.router.navigate(['/orders']),
+          error: () => {
+            this.loading = false;
+            alert('Error creating order');
+          }
+        });
     }
   }
 }

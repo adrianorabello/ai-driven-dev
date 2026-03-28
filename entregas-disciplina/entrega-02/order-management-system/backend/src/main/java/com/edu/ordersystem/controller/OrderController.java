@@ -42,15 +42,8 @@ public class OrderController {
     public ResponseEntity<Page<OrderResponseDTO>> getAllOrders(
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
             Authentication authentication) {
-
-        boolean isAdminOrViewer = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_VIEWER"));
-
-        if (isAdminOrViewer) {
-            return ResponseEntity.ok(orderService.findAll(pageable));
-        } else {
-            return ResponseEntity.ok(orderService.findMyOrders(authentication.getName(), pageable));
-        }
+        
+        return ResponseEntity.ok(orderService.findAllowedOrders(authentication.getName(), pageable));
     }
 
     @Operation(summary = "Update order status")

@@ -5,15 +5,14 @@ com/edu/ordersystem/dto/ProductDTO$ProductDTOBuilder.class
 com/edu/ordersystem/dto/ProductDTO.class
 com/edu/ordersystem/exception/GlobalExceptionHandler.class
 com/edu/ordersystem/controller/UserController.class
-com/edu/ordersystem/dto/OrderItemDTO$OrderItemDTOBuilder.class
 com/edu/ordersystem/dto/OrderItemRequestDTO.class
-com/edu/ordersystem/dto/OrderResponseDTO$OrderResponseDTOBuilder.class
 com/edu/ordersystem/security/CustomUserDetailsService.class
 com/edu/ordersystem/repository/OrderRepository.class
 com/edu/ordersystem/model/RoleName.class
 com/edu/ordersystem/controller/AuthController.class
 com/edu/ordersystem/config/OpenApiConfig.class
 com/edu/ordersystem/service/impl/AuthServiceImpl.class
+com/edu/ordersystem/exception/OrderAccessDeniedException.class
 com/edu/ordersystem/dto/OrderItemDTO.class
 com/edu/ordersystem/model/OrderItem.class
 com/edu/ordersystem/model/Product.class

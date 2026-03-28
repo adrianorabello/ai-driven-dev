@@ -189,6 +189,7 @@ Abaixo está o prompt consolidado que pode ser utilizado para gerar um projeto s
 > O código deve ser limpo, seguir os princípios SOLID e incluir tratamento de exceções global."
 
 ## Documentação Adicional
+*   **[ENTREGA FINAL: Resultado da Refatoração e Dívida Técnica](docs/resultado-refatoracao.md)**
 *   [Arquitetura e Decisões Técnicas](docs/ARCHITECTURE.md)
 *   [Regras de Negócio](docs/BUSINESS_RULES.md)
 *   [Segurança](docs/SECURITY.md)

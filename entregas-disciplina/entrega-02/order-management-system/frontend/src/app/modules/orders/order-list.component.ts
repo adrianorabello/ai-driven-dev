@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { OrderService } from '../../core/services/order.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Order, OrderStatus } from '../../shared/models/models';
+import { inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-order-list',
@@ -43,7 +45,7 @@ import { Order, OrderStatus } from '../../shared/models/models';
                 <td class="align-middle">{{ order.createdAt | date:'mediumDate' }}</td>
                 <td class="align-middle">{{ order.userEmail }}</td>
                 <td class="align-middle">
-                    <span class="badge bg-light text-dark border">{{ order.items?.length || 0 }} items</span>
+                    <span class="badge bg-light text-dark border">{{ order.items.length || 0 }} items</span>
                 </td>
                 <td class="align-middle">{{ order.total | currency }}</td>
                 <td class="align-middle">
@@ -102,6 +104,7 @@ export class OrderListComponent implements OnInit {
   orders: Order[] = [];
   loading = false;
   isAdmin = false;
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private orderService: OrderService,
@@ -117,7 +120,9 @@ export class OrderListComponent implements OnInit {
 
   loadOrders() {
     this.loading = true;
-    this.orderService.getOrders().subscribe({
+    this.orderService.getOrders()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (data) => {
         this.orders = data.content;
         this.loading = false;
@@ -129,7 +134,9 @@ export class OrderListComponent implements OnInit {
   }
 
   updateStatus(id: number, status: string) {
-    this.orderService.updateStatus(id, status as OrderStatus).subscribe({
+    this.orderService.updateStatus(id, status as OrderStatus)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.loadOrders();
       }
@@ -138,7 +145,9 @@ export class OrderListComponent implements OnInit {
 
   deleteOrder(id: number) {
     if (confirm('Are you sure you want to delete this order?')) {
-      this.orderService.deleteOrder(id).subscribe({
+      this.orderService.deleteOrder(id)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
         next: () => {
           this.loadOrders();
         },

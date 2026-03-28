@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Order, OrderStatus, Product } from '../../shared/models/models';
+import { Order, OrderStatus, Product, OrderItemRequest, Page } from '../../shared/models/models';
 
 import { environment } from '../../../environments/environment';
 
@@ -13,18 +13,18 @@ export class OrderService {
 
     constructor(private http: HttpClient) { }
 
-    getOrders(page: number = 0, size: number = 10): Observable<any> {
+    getOrders(page: number = 0, size: number = 10): Observable<Page<Order>> {
         let params = new HttpParams()
             .set('page', page.toString())
             .set('size', size.toString());
-        return this.http.get<any>(`${this.apiUrl}/orders`, { params });
+        return this.http.get<Page<Order>>(`${this.apiUrl}/orders`, { params });
     }
 
-    createOrder(items: any[]): Observable<Order> {
+    createOrder(items: OrderItemRequest[]): Observable<Order> {
         return this.http.post<Order>(`${this.apiUrl}/orders`, { items });
     }
 
-    updateOrder(id: number, items: any[]): Observable<Order> {
+    updateOrder(id: number, items: OrderItemRequest[]): Observable<Order> {
         return this.http.put<Order>(`${this.apiUrl}/orders/${id}`, { items });
     }
 

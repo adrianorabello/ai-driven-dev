@@ -13,6 +13,8 @@ public interface OrderService {
 
     Page<OrderResponseDTO> findMyOrders(String userEmail, Pageable pageable);
 
+    Page<OrderResponseDTO> findAllowedOrders(String userEmail, Pageable pageable);
+
     OrderResponseDTO updateStatus(Long id, OrderStatus status);
 
     void deleteOrder(Long id, String userEmail);

@@ -1,0 +1,68 @@
+Aja como um Arquiteto de Software. Analise meu projeto e gere um relatório de dívida técnica, focando em violações de SOLID e acoplamento excessivo.
+
+You are analyzing a project developed as part of entrega-02, which represents an academic or practical delivery focused on software engineering concepts. Consider that the project may contain incomplete implementations, shortcuts, or inconsistencies typical of iterative deliveries, but your evaluation should follow industry-level standards.
+
+Your task is to analyze the entire codebase located in the provided project directory and generate a structured technical assessment focusing on diagnosing technical debt. Scan the project and list:
+
+1. Code Smells:
+Detect common and advanced code smells, including but not limited to:
+- Métodos muito longos (Long methods)
+- Classes com responsabilidades múltiplas (God Classes)
+- Duplicated code
+- High coupling / low cohesion
+- Feature envy
+- Primitive obsession
+- Shotgun surgery
+- Dead code
+
+For each issue, provide:
+- Location (file/class/method)
+- Description of the smell
+- Impact (readability, maintainability, scalability)
+- Refactoring suggestion
+
+2. Violação de Padrões (Architectural Violations):
+Identify violations of software design principles and patterns, such as:
+- Lógica de banco de dados ou regras de negócio dentro do Controller
+- Tight coupling between layers
+- Violations of SOLID principles
+- Lack of separation of concerns
+- Improper use (or absence) of design patterns (e.g., Strategy, Factory, Repository)
+
+For each violation:
+- Location
+- Description
+- Principle or pattern being violated
+- Suggested correction (with pattern recommendation if applicable)
+
+3. Obsolescência (Obsolete Practices):
+Detect outdated or suboptimal implementations:
+- Uso de loops manuais onde caberia Java Streams ou outras APIs funcionais
+- Legacy libraries or deprecated APIs
+- Lack of immutability where applicable
+- Missing use of modern language features (e.g., records, Optional, streams, lambdas)
+
+For each case:
+- Location
+- Description
+- Modern alternative (with example if possible)
+
+Output Requirements:
+Provide the output in a well-structured report using Markdown or PDF.
+
+# Refactoring Analysis Report — Entrega-02
+
+## 1. Code Smells
+### [Name of Issue]
+- Location:
+- Description:
+- Impact:
+- Suggested Refactor:
+
+## 2. Violação de Padrões
+...
+
+## 3. Obsolescência
+...
+
+Prioritize issues related to SOLID violations and excessive coupling. Assume the project may evolve into a production-ready system.

@@ -4,6 +4,7 @@ import com.edu.ordersystem.dto.OrderItemDTO;
 import com.edu.ordersystem.dto.OrderRequestDTO;
 import com.edu.ordersystem.dto.OrderResponseDTO;
 import com.edu.ordersystem.exception.ResourceNotFoundException;
+import com.edu.ordersystem.exception.OrderAccessDeniedException;
 import com.edu.ordersystem.model.*;
 import com.edu.ordersystem.repository.OrderRepository;
 import com.edu.ordersystem.repository.ProductRepository;
@@ -16,9 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,26 +37,21 @@ public class OrderServiceImpl implements OrderService {
         order.setUser(user);
         order.setStatus(OrderStatus.OPEN);
 
-        List<OrderItem> items = orderRequest.getItems().stream().map(itemRequest -> {
-            Product product = productRepository.findById(itemRequest.getProductId())
+        List<OrderItem> items = orderRequest.items().stream().map(itemRequest -> {
+            Product product = productRepository.findById(itemRequest.productId())
                     .orElseThrow(
-                            () -> new ResourceNotFoundException("Product not found: " + itemRequest.getProductId()));
+                            () -> new ResourceNotFoundException("Product not found: " + itemRequest.productId()));
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
-            orderItem.setQuantity(itemRequest.getQuantity());
+            orderItem.setQuantity(itemRequest.quantity());
             orderItem.setPrice(product.getPrice()); // Snapshot price
             return orderItem;
-        }).collect(Collectors.toList());
+        }).toList();
 
         order.setItems(items);
-
-        BigDecimal total = items.stream()
-                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        order.setTotal(total);
+        order.calculateTotal(); // Removed domain logic from service
 
         Order savedOrder = orderRepository.save(order);
         return mapToDTO(savedOrder);
@@ -76,6 +70,21 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public Page<OrderResponseDTO> findAllowedOrders(String userEmail, Pageable pageable) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        boolean isAdminOrViewer = user.getRoles().stream()
+                .anyMatch(r -> r.equals(RoleName.ROLE_ADMIN) || r.equals(RoleName.ROLE_VIEWER));
+
+        if (isAdminOrViewer) {
+            return orderRepository.findAll(pageable).map(this::mapToDTO);
+        } else {
+            return orderRepository.findByUserId(user.getId(), pageable).map(this::mapToDTO);
+        }
+    }
+
+    @Override
     @Transactional
     public OrderResponseDTO updateStatus(Long id, OrderStatus status) {
         Order order = orderRepository.findById(id)
@@ -86,22 +95,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private OrderResponseDTO mapToDTO(Order order) {
-        List<OrderItemDTO> itemDTOs = order.getItems().stream().map(item -> OrderItemDTO.builder()
-                .productId(item.getProduct().getId())
-                .productName(item.getProduct().getName())
-                .quantity(item.getQuantity())
-                .unitPrice(item.getPrice())
-                .subTotal(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .build()).collect(Collectors.toList());
+        List<OrderItemDTO> itemDTOs = order.getItems().stream().map(item -> new OrderItemDTO(
+                item.getProduct().getId(),
+                item.getProduct().getName(),
+                item.getQuantity(),
+                item.getPrice(),
+                item.calculateSubTotal()
+        )).toList();
 
-        return OrderResponseDTO.builder()
-                .id(order.getId())
-                .userEmail(order.getUser().getEmail())
-                .createdAt(order.getCreatedAt())
-                .status(order.getStatus())
-                .total(order.getTotal())
-                .items(itemDTOs)
-                .build();
+        return new OrderResponseDTO(
+                order.getId(),
+                order.getUser().getEmail(),
+                order.getCreatedAt(),
+                order.getStatus(),
+                order.getTotal(),
+                itemDTOs
+        );
     }
 
     @Override
@@ -113,13 +122,10 @@ public class OrderServiceImpl implements OrderService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        if (!order.getUser().getId().equals(user.getId()) &&
-                user.getRoles().stream().noneMatch(r -> r.equals(RoleName.ROLE_ADMIN))) {
-            throw new RuntimeException("You are not authorized to delete this order");
-        }
+        verifyOrderOwnership(order, user);
 
         if (order.getStatus() != OrderStatus.OPEN) {
-            throw new RuntimeException("Order cannot be deleted because it is not in OPEN status");
+            throw new OrderAccessDeniedException("Order cannot be deleted because it is not in OPEN status");
         }
 
         orderRepository.delete(order);
@@ -134,39 +140,31 @@ public class OrderServiceImpl implements OrderService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        if (!order.getUser().getId().equals(user.getId()) &&
-                user.getRoles().stream().noneMatch(r -> r.equals(RoleName.ROLE_ADMIN))) {
-            throw new RuntimeException("You are not authorized to update this order");
-        }
+        verifyOrderOwnership(order, user);
 
         if (order.getStatus() != OrderStatus.OPEN) {
-            throw new RuntimeException("Order cannot be updated because it is not in OPEN status");
+            throw new OrderAccessDeniedException("Order cannot be updated because it is not in OPEN status");
         }
 
         // Clear existing items (orphan removal should handle deletion if configured,
         // but explicit clear is safer here)
         order.getItems().clear();
 
-        List<OrderItem> items = orderRequest.getItems().stream().map(itemRequest -> {
-            Product product = productRepository.findById(itemRequest.getProductId())
+        List<OrderItem> items = orderRequest.items().stream().map(itemRequest -> {
+            Product product = productRepository.findById(itemRequest.productId())
                     .orElseThrow(
-                            () -> new ResourceNotFoundException("Product not found: " + itemRequest.getProductId()));
+                            () -> new ResourceNotFoundException("Product not found: " + itemRequest.productId()));
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProduct(product);
-            orderItem.setQuantity(itemRequest.getQuantity());
+            orderItem.setQuantity(itemRequest.quantity());
             orderItem.setPrice(product.getPrice()); // Snapshot price
             return orderItem;
-        }).collect(Collectors.toList());
+        }).toList();
 
         order.getItems().addAll(items);
-
-        BigDecimal total = items.stream()
-                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        order.setTotal(total);
+        order.calculateTotal(); // domain logic
 
         return mapToDTO(orderRepository.save(order));
     }
@@ -179,10 +177,14 @@ public class OrderServiceImpl implements OrderService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+        verifyOrderOwnership(order, user);
+        return mapToDTO(order);
+    }
+
+    private void verifyOrderOwnership(Order order, User user) {
         if (!order.getUser().getId().equals(user.getId()) &&
                 user.getRoles().stream().noneMatch(r -> r.equals(RoleName.ROLE_ADMIN))) {
-            throw new RuntimeException("You are not authorized to view this order");
+            throw new OrderAccessDeniedException("You are not authorized to access or modify this order");
         }
-        return mapToDTO(order);
     }
 }

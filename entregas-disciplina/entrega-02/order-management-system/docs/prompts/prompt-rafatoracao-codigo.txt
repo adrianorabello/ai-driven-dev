@@ -1,0 +1,124 @@
+# Plano de Refatoração e Execução — Entrega-02
+
+## Contexto
+
+Este documento descreve as intervenções realizadas com base na análise prévia do projeto, com foco em melhoria de qualidade de código, arquitetura, violações de SOLID e modernização.
+
+---
+
+## Intervenções Realizadas
+
+### 1. Modelo de Domínio Anêmico / Feature Envy
+
+- **Problema:**  
+A lógica de cálculo de subtotal e total está concentrada no `OrderServiceImpl`, enquanto as entidades `Order` e `OrderItem` atuam apenas como estruturas de dados fracas.
+
+- **Técnica Aplicada:**  
+Move Method (Enriquecimento do Modelo de Domínio).
+
+- **Prompt de Refatoração:**  
+Move calculation logic from OrderServiceImpl to Order and OrderItem classes. Create methods calculateSubTotal() and calculateTotal() inside domain entities. Ao final, descreva brevemente o problema resolvido e a técnica aplicada.
+
+---
+
+### 2. Código Duplicado (Autorização)
+
+- **Problema:**  
+Lógica de validação de autorização duplicada em múltiplos métodos, quebrando o princípio DRY.
+
+- **Técnica Aplicada:**  
+Extract Method (Centralização de Regra de Negócio).
+
+- **Prompt de Refatoração:**  
+Extract duplicated authorization logic into a private method verifyOrderOwnership(Order order, User user) and replace occurrences. Ao final, descreva brevemente o problema resolvido e a técnica aplicada.
+
+---
+
+### 3. Classe Grande no Frontend (Angular)
+
+- **Problema:**  
+O componente `OrderCreateComponent` possui múltiplas responsabilidades (formulário, API, mapeamento, navegação, alerts), criando uma "God Class".
+
+- **Técnica Aplicada:**  
+Extração de Service (Separation of Concerns).
+
+- **Prompt de Refatoração:**  
+Extract form logic and API mapping from OrderCreateComponent into a dedicated service or facade. Ao final, descreva brevemente o problema resolvido e a técnica aplicada.
+
+---
+
+### 4. Uso de Any no TypeScript
+
+- **Problema:**  
+Uso de `any` e casts inseguros que quebram a tipagem do sistema Angular inviabilizando as ferramentas do TS.
+
+- **Técnica Aplicada:**  
+Replace with Strong Typing.
+
+- **Prompt de Refatoração:**  
+Replace any casts with properly defined interfaces matching backend DTO structure. Ao final, descreva brevemente o problema resolvido e a técnica aplicada.
+
+---
+
+### 5. Lógica de Negócio e de Banco de Dados no Controller
+
+- **Problema:**  
+O Controller de Orders está decidindo as regras de acesso ao banco baseado nas roles e efetuando autorização acoplada.
+
+- **Técnica Aplicada:**  
+Move Responsibility to Service Layer.
+
+- **Prompt de Refatoração:**  
+Move role-checking logic from controller to service method findAllowedOrders() or repository. Ao final, descreva brevemente o problema resolvido e a técnica aplicada.
+
+---
+
+### 6. Uso de Exceções Genéricas
+
+- **Problema:**  
+Uso de `RuntimeException` pura para representar problemas e regras de negócio violadas no backend (Obsolescência e Má Prática).
+
+- **Técnica Aplicada:**  
+Introduce Domain Exceptions.
+
+- **Prompt de Refatoração:**  
+Replace RuntimeException with custom exceptions like AccessDeniedException and handle them using @ControllerAdvice. Ao final, descreva brevemente o problema resolvido e a técnica aplicada.
+
+---
+
+### 7. Subscriptions sem Cleanup (Angular)
+
+- **Problema:**  
+Possível memory leak devido a subscriptions ao backend não gerenciadas apropriadamente ou vazamento de estado.
+
+- **Técnica Aplicada:**  
+Reactive Refactor (Async Pipe / takeUntilDestroyed).
+
+- **Prompt de Refatoração:**  
+Replace manual subscriptions with async pipe or use takeUntilDestroyed() for cleanup. Ao final, descreva brevemente o problema resolvido e a técnica aplicada.
+
+---
+
+### 8. Uso de Lombok em DTOs e Práticas Datadas
+
+- **Problema:**  
+Uso de `@Data` em DTOs imutáveis em vez de utilizar os recursos modernos das linguagens (Obsolescência).
+
+- **Técnica Aplicada:**  
+Conversão para Records.
+
+- **Prompt de Refatoração:**  
+Convert standard DTO classes into Java records to ensure immutability. Ao final, descreva brevemente o problema resolvido e a técnica aplicada.
+
+---
+
+### 9. Uso Antigo de Streams do Java
+
+- **Problema:**  
+Uso de código obsoleto na construção do pipeline, como `collect(Collectors.toList())` ou loops manuais em que poderia encaixar Streams perfeitamente.
+
+- **Técnica Aplicada:**  
+Simplificação e Modernização com API atualizada do Java.
+
+- **Prompt de Refatoração:**  
+Replace legacy list collection with Java 16+ Stream.toList() or convert classic for-loops into stream syntax. Ao final, descreva brevemente o problema resolvido e a técnica aplicada.
